@@ -1,1 +1,1 @@
-{"hello-world":{"up":1,"down":1,"userVotes":{"up":true,"down":true}}}
+{"hello-world":{"up":1,"down":1,"userVotes":{"up":true,"down":true}},"second-post":{"up":0,"down":0,"userVotes":{"up":false,"down":false}},"001post":{"up":0,"down":0,"userVotes":{"up":false,"down":false},"votes":0,"userVote":true},"004post":{"votes":0,"userVote":false},"002post":{"votes":0,"userVote":false},"003post":{"votes":0,"userVote":false}}

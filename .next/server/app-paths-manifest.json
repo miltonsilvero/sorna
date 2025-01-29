@@ -1,3 +1,4 @@
 {
+  "/api/votes/[id]/route": "app/api/votes/[id]/route.js",
   "/page": "app/page.js"
 }

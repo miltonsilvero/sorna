@@ -3,8 +3,9 @@
 import { updateVotes } from '../lib/posts'
 import { revalidatePath } from 'next/cache'
 
-export async function handleVote(id: string, voteType: 'up' | 'down', isVoting: boolean) {
-  updateVotes(id, voteType, isVoting)
-  revalidatePath('/')
+export async function handleVote(id: string, isVoting: boolean) {
+  await updateVotes(id, isVoting)
+  revalidatePath("/")
+  revalidatePath(`/posts/${id}`)
 }
 

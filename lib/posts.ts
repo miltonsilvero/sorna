@@ -14,16 +14,16 @@ export function getSortedPostsData() {
 
   const fileNames = fs.readdirSync(postsDirectory)
   const allPostsData = fileNames.map((fileName) => {
-    const id = fileName.replace(/\.md$/, '')
+    const id = fileName.replace(/\.md$/, "")
     const fullPath = path.join(postsDirectory, fileName)
-    const fileContents = fs.readFileSync(fullPath, 'utf8')
+    const fileContents = fs.readFileSync(fullPath, "utf8")
     const matterResult = matter(fileContents)
 
     return {
       id,
       content: matterResult.content,
       ...(matterResult.data as { date: string; title: string }),
-      votes: getVotes(id).total
+      votes: getVotes(id).total,
     }
   })
 
@@ -46,7 +46,7 @@ export function getPostData(id: string) {
     throw new Error(`Post with id ${id} does not exist.`)
   }
 
-  const fileContents = fs.readFileSync(fullPath, 'utf8')
+  const fileContents = fs.readFileSync(fullPath, "utf8")
   const matterResult = matter(fileContents)
 
   const votes = getVotes(id)
@@ -56,44 +56,47 @@ export function getPostData(id: string) {
     content: matterResult.content,
     ...(matterResult.data as { date: string; title: string }),
     votes: votes.total,
-    userVotes: votes.userVotes
+    userVote: votes.userVote,
   }
 }
 
-export function getVotes(id: string): { total: number; userVotes: { up: boolean; down: boolean } } {
+export function getVotes(id: string): { total: number; userVote: boolean } {
   try {
     if (!fs.existsSync(votesFile)) {
-      return { total: 0, userVotes: { up: false, down: false } }
+      return { total: 0, userVote: false }
     }
-    const votesData = fs.readFileSync(votesFile, 'utf8')
+    const votesData = fs.readFileSync(votesFile, "utf8")
     const votes = JSON.parse(votesData)
-    const postVotes = votes[id] || { up: 0, down: 0, userVotes: { up: false, down: false } }
+    const postVotes = votes[id] || { votes: 0, userVote: false }
     return {
-      total: postVotes.up - postVotes.down,
-      userVotes: postVotes.userVotes
+      total: postVotes.votes,
+      userVote: postVotes.userVote,
     }
   } catch (error) {
     console.error(`Error getting votes for post ${id}:`, error)
-    return { total: 0, userVotes: { up: false, down: false } }
+    return { total: 0, userVote: false }
   }
 }
 
-export function updateVotes(id: string, voteType: 'up' | 'down', isVoting: boolean) {
+export function updateVotes(id: string, isVoting: boolean) {
   try {
     let votes = {}
     if (fs.existsSync(votesFile)) {
-      const votesData = fs.readFileSync(votesFile, 'utf8')
+      const votesData = fs.readFileSync(votesFile, "utf8")
       votes = JSON.parse(votesData)
     }
     if (!votes[id]) {
-      votes[id] = { up: 0, down: 0, userVotes: { up: false, down: false } }
+      votes[id] = { votes: 0, userVote: false }
     }
-    if (isVoting) {
-      votes[id][voteType] += 1
-    } else {
-      votes[id][voteType] -= 1
+
+    if (isVoting && !votes[id].userVote) {
+      votes[id].votes += 1
+    } else if (!isVoting && votes[id].userVote) {
+      votes[id].votes -= 1
     }
-    votes[id].userVotes[voteType] = isVoting
+
+    votes[id].userVote = isVoting
+
     if (!fs.existsSync(path.dirname(votesFile))) {
       fs.mkdirSync(path.dirname(votesFile), { recursive: true })
     }
@@ -103,4 +106,3 @@ export function updateVotes(id: string, voteType: 'up' | 'down', isVoting: boole
     throw error
   }
 }
-
